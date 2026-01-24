@@ -1,5 +1,6 @@
 import express from "express";
 import cors from "cors";
+import prisma from "./config/prisma";
 
 const app = express();
 
@@ -11,6 +12,11 @@ app.get("/health", (_req, res) => {
     status: "OK",
     service: "staystrong-backend",
   });
+});
+
+app.get("/users", async (_req, res) => {
+  const users = await prisma.user.findMany();
+  res.json(users);
 });
 
 export default app;
