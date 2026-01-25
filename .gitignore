@@ -1,4 +1,16 @@
+# Dependencies
 node_modules
+
+# Build output
 dist
+
+# Environment variables
 .env
+.env.*
+
+# Allow example file - For future - When App scales
+!.env.example
+
+
+# Prisma (Version downgraded)
 /src/generated/prisma
