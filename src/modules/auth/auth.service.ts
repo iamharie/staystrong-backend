@@ -44,11 +44,15 @@ export const registerUser = async (data: RegisterInput) => {
     },
   });
 
-  try {
-    await sendVerificationEmail(email, verificationToken);
-  } catch (err) {
-    console.error("Email send failed:", err);
-  }
+  //performance issue
+  // try {
+  //   await sendVerificationEmail(email, verificationToken);
+  // } catch (err) {
+  //   console.error("Email send failed:", err);
+  // }
+  sendVerificationEmail(email, verificationToken).catch((err) => {
+    console.error("Verification email send failed:", err);
+  });
 
   return {
     id: user.id,
@@ -114,7 +118,13 @@ export const forgotPassword = async (email: string) => {
     },
   });
 
-  await sendPasswordResetEmail(email, token);
+  // Performance issue
+  // await sendPasswordResetEmail(email, token);
+
+  // Fire-and-forget email (NON-BLOCKING)
+  sendPasswordResetEmail(email, token).catch((err) => {
+    console.error("Password reset email send failed:", err);
+  });
 };
 
 // Reset Password
