@@ -1,5 +1,11 @@
 import { Router } from "express";
-import { register, login } from "./auth.controller";
+import {
+  register,
+  login,
+  verifyEmail,
+  forgotPasswordController,
+  resetPasswordController,
+} from "./auth.controller";
 
 const router = Router();
 
@@ -8,5 +14,14 @@ router.post("/register", register);
 
 // POST /auth/login
 router.post("/login", login);
+
+//Email-Verification
+router.get("/verify-email", verifyEmail);
+
+//forgot-password
+router.post("/forgot-password", forgotPasswordController);
+
+//reset-password
+router.post("/reset-password", resetPasswordController);
 
 export default router;
