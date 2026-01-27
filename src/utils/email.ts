@@ -1,35 +1,24 @@
-import nodemailer from "nodemailer";
+import { Resend } from "resend";
+
+if (!process.env.RESEND_API_KEY) {
+  throw new Error("RESEND_API_KEY not configured");
+}
+
+if (!process.env.FRONTEND_URL) {
+  throw new Error("FRONTEND_URL not configured");
+}
+
+const resend = new Resend(process.env.RESEND_API_KEY);
 
 export const sendVerificationEmail = async (email: string, token: string) => {
-  console.log("📧 [EMAIL] Starting verification email send", {
-    to: email,
-  });
-
-  if (!process.env.EMAIL_USER || !process.env.EMAIL_PASS) {
-    console.error("❌ [EMAIL] Missing EMAIL_USER or EMAIL_PASS env vars");
-    throw new Error("Email credentials not configured");
-  }
-
-  if (!process.env.FRONTEND_URL) {
-    console.error("❌ [EMAIL] Missing FRONTEND_URL env var");
-    throw new Error("Frontend URL not configured");
-  }
-
-  const transporter = nodemailer.createTransport({
-    service: "Gmail",
-    auth: {
-      user: process.env.EMAIL_USER,
-      pass: process.env.EMAIL_PASS,
-    },
-  });
-
   const link = `${process.env.FRONTEND_URL}/verify-email?token=${token}`;
 
   try {
-    const info = await transporter.sendMail({
-      from: `"StayStrong" <${process.env.EMAIL_USER}>`,
+    const result = await resend.emails.send({
+      from: "StayStrong <noreply@staystrongbyhari.com>",
       to: email,
       subject: "Verify your email",
+      text: `Verify your email: ${link}`,
       html: `
         <p>Welcome to StayStrong 💪</p>
         <p>Please verify your email:</p>
@@ -40,39 +29,40 @@ export const sendVerificationEmail = async (email: string, token: string) => {
 
     console.log("✅ [EMAIL] Verification email sent", {
       to: email,
-      messageId: info.messageId,
+      id: result?.data?.id,
     });
-  } catch (err: any) {
-    console.error("❌ [EMAIL] Verification email FAILED", {
+  } catch (error: any) {
+    console.error("❌ [EMAIL] Verification email failed", {
       to: email,
-      error: err?.message || err,
-      code: err?.code,
-      response: err?.response,
+      error: error?.message || error,
     });
-
-    // IMPORTANT: rethrow so caller `.catch()` can log
-    throw err;
   }
 };
 
 export const sendPasswordResetEmail = async (email: string, token: string) => {
-  const transporter = nodemailer.createTransport({
-    service: "Gmail",
-    auth: {
-      user: process.env.EMAIL_USER,
-      pass: process.env.EMAIL_PASS,
-    },
-  });
   const link = `${process.env.FRONTEND_URL}/reset-password?token=${token}`;
 
-  await transporter.sendMail({
-    from: `"StayStrong" <${process.env.EMAIL_USER}>`,
-    to: email,
-    subject: "Reset your password",
-    html: `
-      <p>You requested a password reset.</p>
-      <a href="${link}">Reset Password</a>
-      <p>This link expires in 1 hour.</p>
-    `,
-  });
+  try {
+    const result = await resend.emails.send({
+      from: "StayStrong <noreply@staystrongbyhari.com>",
+      to: email,
+      subject: "Reset your password",
+      text: `Reset your password: ${link}`,
+      html: `
+        <p>You requested a password reset.</p>
+        <a href="${link}">Reset Password</a>
+        <p>This link expires in 1 hour.</p>
+      `,
+    });
+
+    console.log("✅ [EMAIL] Password reset email sent", {
+      to: email,
+      id: result?.data?.id,
+    });
+  } catch (error: any) {
+    console.error("❌ [EMAIL] Password reset email failed", {
+      to: email,
+      error: error?.message || error,
+    });
+  }
 };
