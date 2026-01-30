@@ -2,6 +2,7 @@ import express from "express";
 import cors from "cors";
 import prisma from "./config/prisma";
 import authRoutes from "./modules/auth/auth.routes";
+import portfolioContactRoutes from "./modules/portfolio-contact/portfolio-contact.routes";
 import { authenticate, authorizeAdmin } from "./middlewares/auth.middleware";
 
 const app = express();
@@ -10,6 +11,7 @@ app.use(cors());
 app.use(express.json());
 
 app.use("/auth", authRoutes);
+app.use("/portfolio-contact", portfolioContactRoutes);
 
 app.get("/health", (_req, res) => {
   res.status(200).json({

@@ -35,3 +35,12 @@ model User {
 
   createdAt DateTime @default(now())
 }
+
+model PortfolioContact {
+  id        String   @id @default(cuid())
+  name      String
+  email     String
+  message   String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
